@@ -11,6 +11,7 @@ ALGORITHM = "HS256"
 
 password_hasher = PasswordHasher()
 
+# ---- Functions used commonly across all endpoints ---- 
 
 def fail(message, code):
     return {"error": message, "code": code, "data": None}
