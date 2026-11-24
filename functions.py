@@ -11,6 +11,7 @@ ALGORITHM = "HS256"
 
 password_hasher = PasswordHasher()
 
+# ---- Functions used commonly across all endpoints ---- 
 
 def fail(message, code):
     return {"error": message, "code": code, "data": None}
@@ -102,3 +103,54 @@ def create_admin():
         session.commit()
 
     session.close()
+
+#Aiman:- 
+
+# E10 - GET ALL EVENTS
+
+def get_all_events(token):
+
+    session = Session(engine)
+
+    user = get_user(session, token)
+
+    if user is None:
+        session.close()
+        return fail("Invalid or missing access token", 401)
+
+    events = session.query(Event).all()
+
+    response = []
+
+    for event in events:
+
+        club = session.query(Club).filter(Club.id == event.club_id).first()
+
+        registered = session.query(Registration).filter(
+            Registration.event_id == event.id
+        ).count()
+
+        seats_left = event.capacity - registered
+
+        is_open = seats_left > 0 and event.deadline > datetime.now()
+
+        temp_event = {
+            "id": event.id,
+            "club_id": event.club_id,
+            "club_name": club.name,
+            "title": event.title,
+            "description": event.description,
+            "venue": event.venue,
+            "event_date": event.event_date,
+            "deadline": event.deadline,
+            "capacity": event.capacity,
+            "registered": registered,
+            "seats_left": seats_left,
+            "registration_open": is_open
+        }
+
+        response.append(temp_event)
+
+    session.close()
+
+    return ok(response)
