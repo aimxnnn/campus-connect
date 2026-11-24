@@ -103,22 +103,3 @@ def create_admin():
 
     session.close()
 
-#E4
-def get_club(club_id):
-    session=session(engine)
-
-    club = session.query(Club).filter(club.id=club_id).first()
-
-    if club:
-        response = {
-            "id"=club.id,
-            "name"=club.name,
-            "category"=club.category,
-            "description"=club.description,
-            "coordinator_id"=club.coordinator_id,
-        }
-
-        session.close()
-        return response
-
-        
