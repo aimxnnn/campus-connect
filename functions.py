@@ -120,3 +120,34 @@ def get_club(club_id):
 
         session.close()
         return response
+
+#E5
+def update_club(club_id, coordinator_id, name, description, category):
+    session = Session(engine)
+
+    club = session.query(Club).filter(Club.id == club_id).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    club.name = name
+    club.description = description
+    club.category = category
+
+    session.commit()
+
+    response = {
+        "id": club.id,
+        "name": club.name,
+        "description": club.description,
+        "category": club.category,
+        "coordinator_id": club.coordinator_id
+    }
+
+    session.close()
+    return response
