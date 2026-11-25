@@ -151,3 +151,41 @@ def update_club(club_id, coordinator_id, name, description, category):
 
     session.close()
     return response
+
+#E6
+def apply_club(club_id, student_id):
+    session = Session(engine)
+
+    club = session.query(Club).filter(Club.id == club_id).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    existing_request = session.query(Membership).filter(
+        Membership.club_id == club_id,
+        Membership.student_id == student_id
+    ).first()
+
+    if existing_request:
+        session.close()
+        return False
+
+    membership = Membership(
+        club_id=club_id,
+        student_id=student_id,
+        status="pending"
+    )
+
+    session.add(membership)
+    session.commit()
+
+    response = {
+        "id": membership.id,
+        "club_id": membership.club_id,
+        "student_id": membership.student_id,
+        "status": membership.status
+    }
+
+    session.close()
+    return response
