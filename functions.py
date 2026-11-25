@@ -341,3 +341,46 @@ def get_event_participants(token, event_id):
     session.close()
 
     return ok(response)
+
+# E15 - GET STUDENT'S EVENT PARTICIPATION HISTORY
+
+def get_my_history(token):
+
+    session = Session(engine)
+
+    user = get_user(session, token)
+
+    if user is None:
+        session.close()
+        return fail("Invalid or missing access token", 401)
+
+    if user.role != "student":
+        session.close()
+        return fail("Student access required", 403)
+
+    registrations = session.query(Registration).filter(
+        Registration.student_id == user.id
+    ).all()
+
+    response = []
+
+    for r in registrations:
+
+        event = session.query(Event).filter(Event.id == r.event_id).first()
+        club = session.query(Club).filter(Club.id == event.club_id).first()
+
+        temp_history = {
+            "event_id": event.id,
+            "title": event.title,
+            "venue": event.venue,
+            "event_date": event.event_date,
+            "club_name": club.name,
+            "registered_at": r.created_at,
+            "attended": r.attended
+        }
+
+        response.append(temp_history)
+
+    session.close()
+
+    return ok(response)

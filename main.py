@@ -83,3 +83,16 @@ def get_event_participants(event_id: int, token: str = Header(None)):
         "participants": result["data"]
     }
 
+# E15 - GET STUDENT'S EVENT PARTICIPATION HISTORY
+
+@app.get("/students/me/participation")
+def get_my_history(token: str = Header(None)):
+
+    result = functions.get_my_history(token)
+
+    if result["error"] is not None:
+        raise HTTPException(status_code=result["code"], detail=result["error"])
+
+    return {
+        "history": result["data"]
+    }
