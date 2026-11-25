@@ -256,3 +256,44 @@ def get_club_members(club_id, coordinator_id):
 
     session.close()
     return members
+
+#E9
+def create_event(club_id, coordinator_id, title, description, venue, date, max_capacity):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    event = Event(
+        club_id=club_id,
+        title=title,
+        description=description,
+        venue=venue,
+        date=date,
+        max_capacity=max_capacity
+    )
+
+    session.add(event)
+    session.commit()
+
+    response = {
+        "id": event.id,
+        "club_id": event.club_id,
+        "title": event.title,
+        "description": event.description,
+        "venue": event.venue,
+        "date": event.date,
+        "max_capacity": event.max_capacity
+    }
+
+    session.close()
+    return response
