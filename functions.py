@@ -232,3 +232,27 @@ def update_membership(club_id, request_id, coordinator_id, status):
 
     session.close()
     return response
+
+#E8
+def get_club_members(club_id, coordinator_id):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    members = session.query(Membership).filter(
+        Membership.club_id == club_id,
+        Membership.status == "approved"
+    ).all()
+
+    session.close()
+    return members
