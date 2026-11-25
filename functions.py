@@ -189,3 +189,46 @@ def apply_club(club_id, student_id):
 
     session.close()
     return response
+
+#E7
+def update_membership(club_id, request_id, coordinator_id, status):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    membership = session.query(Membership).filter(
+        Membership.id == request_id,
+        Membership.club_id == club_id
+    ).first()
+
+    if membership is None:
+        session.close()
+        return None
+
+    if status not in ["approved", "rejected"]:
+        session.close()
+        return "invalid"
+
+    membership.status = status
+
+    session.commit()
+
+    response = {
+        "id": membership.id,
+        "club_id": membership.club_id,
+        "student_id": membership.student_id,
+        "status": membership.status
+    }
+
+    session.close()
+    return response
