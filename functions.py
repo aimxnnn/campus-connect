@@ -105,21 +105,26 @@ def create_admin():
 
 #E4
 def get_club(club_id):
-    session=session(engine)
+    session = Session(engine)
 
-    club = session.query(Club).filter(club.id=club_id).first()
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
 
     if club:
         response = {
-            "id"=club.id,
-            "name"=club.name,
-            "category"=club.category,
-            "description"=club.description,
-            "coordinator_id"=club.coordinator_id,
+            "id": club.id,
+            "name": club.name,
+            "description": club.description,
+            "category": club.category,
+            "coordinator_id": club.coordinator_id
         }
 
         session.close()
         return response
+
+    session.close()
+    return None
 
 #E5
 def update_club(club_id, coordinator_id, name, description, category):
@@ -297,3 +302,4 @@ def create_event(club_id, coordinator_id, title, description, venue, date, max_c
 
     session.close()
     return response
+
