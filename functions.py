@@ -104,3 +104,73 @@ def create_admin():
 
     session.close()
 
+# Shafff
+# A1 - REGISTER USER
+
+def register_user(username, email, password):
+
+    session = Session(engine)
+
+    existing_user = session.query(User).filter(User.email == email).first()
+
+    if existing_user:
+        session.close()
+        return None
+
+    hashed_password = password_hasher.hash(password)
+
+    new_user = User(
+        username=username,
+        email=email,
+        hashed_password=hashed_password,
+        role="student"
+    )
+
+    session.add(new_user)
+    session.commit()
+
+    session.close()
+
+    return True
+
+# A1 - REGISTER USER
+
+def register_user(username, email, password):
+
+    session = Session(engine)
+
+    existing_user = session.query(User).filter(User.email == email).first()
+
+    if existing_user:
+        session.close()
+        return None
+
+    hashed_password = password_hasher.hash(password)
+
+    new_user = User(
+        username=username,
+        email=email,
+        hashed_password=hashed_password,
+        role="student"
+    )
+
+    session.add(new_user)
+    session.commit()
+
+    session.close()
+
+    return True
+
+
+# A3 - GENERATE NEW ACCESS TOKEN
+
+def refresh_access_token(refresh_token):
+
+    email = verify_token(refresh_token, "refresh")
+
+    if email is None:
+        return None
+
+    new_access_token = create_token(email, "access")
+
+    return new_access_token
