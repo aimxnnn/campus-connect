@@ -5,7 +5,7 @@ import os
 
 os.makedirs("data", exist_ok=True)
 
-engine = create_engine("sqlite:///./data/campus.db", connect_args={"check_same_thread": False})
+engine = create_engine("sqlite:///./data/campus.db")
 
 Base = declarative_base()
 
