@@ -75,8 +75,7 @@ def refresh_token(data: RefreshToken):
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
     return {
-        "access_token": new_access_token,
-        "token_type": "bearer"
+        "access_token": new_access_token
     }
 
 
