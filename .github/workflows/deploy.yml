@@ -1,0 +1,42 @@
+name: Build and Deploy Campus Connect
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/campus-connect:latest
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/campus-connect:latest
+            docker stop campus-connect || true
+            docker rm campus-connect || true
+            mkdir -p /home/ec2-user/campus-data
+            docker run -d --name campus-connect --restart unless-stopped -p 8001:8001 -v /home/ec2-user/campus-data:/app/data ${{ secrets.DOCKERHUB_USERNAME }}/campus-connect:latest
+            docker image prune -f
