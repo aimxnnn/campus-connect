@@ -43,3 +43,22 @@ def update_club_details(club_id: int, name: str, description: str, category: str
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return club
+
+#E6
+@app.post("/clubs/{club_id}/apply")
+def apply_to_club(club_id: int, token: str = Header(None)):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    student_id = get_user_id_from_token(token)
+
+    membership = functions.apply_club(club_id, student_id)
+
+    if membership is None:
+        raise HTTPException(status_code=404, detail="Club not found")
+
+    if membership is False:
+        raise HTTPException(status_code=400, detail="Already applied to this club")
+
+    return membership
