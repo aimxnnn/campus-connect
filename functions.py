@@ -359,6 +359,15 @@ def update_club(club_id, coordinator_id, name, description, category):
         session.close()
         return False
 
+    existing_club = session.query(Club).filter(
+    Club.name == name,
+    Club.id != club_id
+    ).first()
+
+    if existing_club:
+        session.close()
+        return "duplicate"
+
     club.name = name
     club.description = description
     club.category = category
@@ -480,12 +489,29 @@ def get_club_members(club_id, coordinator_id):
         return False
 
     members = session.query(Membership).filter(
-        Membership.club_id == club_id,
-        Membership.status == "approved"
+    Membership.club_id == club_id,
+    Membership.status == "approved"
     ).all()
 
+    response = []
+
+    for m in members:
+
+        student = session.query(User).filter(User.id == m.student_id).first()
+
+        temp_member = {
+            "membership_id": m.id,
+            "student_id": student.id,
+            "username": student.username,
+            "email": student.email,
+            "status": m.status,
+            "joined_at": m.created_at
+        }
+
+        response.append(temp_member)
+
     session.close()
-    return members
+    return response
 
 #E9
 def create_event(club_id, coordinator_id, title, description, venue, date, deadline, max_capacity):

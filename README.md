@@ -18,85 +18,41 @@ Campus Connect is a backend application designed to manage university clubs and 
 
 ## 2. LIVE APPLICATION
 
-**EC2 Deployment Link:**  
-[(http://54.160.162.43:8001/docs#/)]
+**API URL:** [(http://54.160.162.43:8001/)]
+**API Docs:** [(http://54.160.162.43:8001/docs#/)]
+
+**Default admin login:** `admin@campus.com` / `admin123`
 
 ## 3. HOW TO RUN THE APPLICATION LOCALLY
 
-### Backend Setup
-
-**Step 1: Create the database directory**
-
-The application stores its database inside the `C:\app\data` directory. Create this folder before running the backend.
-
-```powershell
-mkdir C:\app\data
-```
-
-**Step 2: Navigate to the backend directory**
-
-```powershell
-cd backend
-```
-
-**Step 3: Create a virtual environment**
-
 ```powershell
 python -m venv venv
-```
-
-**Step 4: Activate the virtual environment**
-
-```powershell
 venv\Scripts\activate
-```
-
-**Step 5: Install the required dependencies**
-
-```powershell
 pip install -r requirements.txt
-```
-
-**Step 6: Start the FastAPI server**
-
-```powershell
 uvicorn main:app --reload --port 8001
 ```
 
-**Step 7: Access the API documentation**
-
-Open the following URL in your browser:
-
-http://127.0.0.1:8001/docs
-
+Open http://127.0.0.1:8001/docs. The `data/` folder and the SQLite database are created automatically on first run.
 
 ## 4. DOCKER IMPLEMENTATION
 
-Docker is used to containerise the backend application, making it easier to run and deploy consistently across different environments.
+Docker is used to containerize the backend so it runs the same way everywhere.
 
-### Step 1: Build the Docker Image
-
-Run the following command from the project root directory:
+**Build the image** (from the project root):
 
 ```powershell
-docker build -t campus-connect -f backend/dockerfile ./backend
+docker build -t campus-connect .
 ```
 
-### Step 2: Run the Docker Container
+**Run the container:**
 
 ```powershell
-docker run -d -p 8001:8001 -v ${PWD}/data:/app/data -e SECRET_KEY=any-key campus-connect
+docker run -d -p 8001:8001 -v ${PWD}/data:/app/data campus-connect
 ```
 
-### Step 3: Access the Application
+Open http://127.0.0.1:8001/docs.
 
-Open:
-
-http://127.0.0.1:8001/docs
-
-**Note:** Stop the locally running Uvicorn server before starting the Docker container, as both applications use port `8001`.
-
-The Docker volume mapping ensures that database files remain available even when the container is stopped or replaced.
+**Note:** Stop any locally running Uvicorn server first, since both use port `8001`. The volume mapping keeps the database when the container is stopped or replaced.
 
 ## 5. DEPLOYMENT AND CI/CD PIPELINE
 
@@ -104,23 +60,48 @@ The application is deployed on an **AWS EC2 instance** using Docker and GitHub A
 
 ### Deployment Workflow
 
-1. **Code Push:** Whenever changes are pushed to the `main` branch, the GitHub Actions workflow is triggered.
-2. **Docker Build:** GitHub Actions automatically builds a new Docker image.
-3. **Docker Hub:** The generated image is pushed to Docker Hub.
-4. **EC2 Deployment:** The updated image is pulled and a new Docker container is launched on the EC2 instance.
-5. **Database Persistence:** The database is stored on the EC2 instance at `/opt/feedback/data` and mounted into the container using a Docker volume.
+1. **Code Push:** A push to the `main` branch triggers the GitHub Actions workflow.
+2. **Docker Build:** GitHub Actions builds a new Docker image.
+3. **Docker Hub:** The image is pushed to Docker Hub.
+4. **EC2 Deployment:** GitHub Actions connects to EC2 over SSH, pulls the latest image and replaces the running container.
+5. **Database Persistence:** The SQLite database is stored on the EC2 instance and mounted into the container.
 
 ### Database Volume Mapping
 
 ```bash
--v /opt/feedback/data:/app/data
+-v /home/ec2-user/campus-data:/app/data
 ```
-
-This ensures that database data is preserved even when the existing Docker container is stopped or replaced.
 
 ### Deployment Summary
 
 **GitHub → GitHub Actions → Docker Build → Docker Hub → AWS EC2 → Running Container**
+
+Docker Hub credentials and EC2 SSH details are stored as GitHub Secrets.
+
+## 6. API ENDPOINTS
+
+Send the access token in a `token` header on every endpoint except A1–A3.
+
+| # | Method | Endpoint | Access |
+|:---:|:---:|:---|:---|
+| A1 | POST | `/auth/register` | Public |
+| A2 | POST | `/auth/login` | Public |
+| A3 | POST | `/auth/refresh` | Public |
+| E1 | POST | `/admin/coordinators` | Admin |
+| E2 | POST | `/clubs` | Admin |
+| E3 | GET | `/clubs` | Logged-in users |
+| E4 | GET | `/clubs/{club_id}` | Logged-in users |
+| E5 | PATCH | `/clubs/{club_id}` | Club coordinator |
+| E6 | POST | `/clubs/{club_id}/apply` | Student |
+| E7 | PATCH | `/clubs/{club_id}/requests/{request_id}` | Club coordinator |
+| E8 | GET | `/clubs/{club_id}/members` | Club coordinator |
+| E9 | POST | `/clubs/{club_id}/events` | Club coordinator |
+| E10 | GET | `/events` | Logged-in users |
+| E11 | POST | `/events/{event_id}/register` | Student |
+| E12 | DELETE | `/events/{event_id}/register` | Student |
+| E13 | PUT | `/events/{event_id}/attendance` | Club coordinator |
+| E14 | GET | `/events/{event_id}/participants` | Club coordinator |
+| E15 | GET | `/students/me/participation` | Student |
 
 ---
 

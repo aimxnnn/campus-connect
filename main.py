@@ -155,7 +155,7 @@ def get_club_details(club_id: int, token: str = Header(None)):
     return club
 
 # E5
-@app.put("/clubs/{club_id}")
+@app.patch("/clubs/{club_id}")
 def update_club_details(club_id: int, name: str, description: str, category: str, token: str = Header(None)):
 
     if token is None:
@@ -173,6 +173,9 @@ def update_club_details(club_id: int, name: str, description: str, category: str
 
     if club is False:
         raise HTTPException(status_code=403, detail="Not authorized")
+    
+    if club == "duplicate":
+        raise HTTPException(status_code=409, detail="Club name already exists")
 
     return club
 
@@ -271,6 +274,9 @@ def create_campus_event(
 
     if max_capacity <= 0:
         raise HTTPException(status_code=422, detail="Invalid event capacity")
+
+    if deadline > date:
+        raise HTTPException(status_code=422, detail="Deadline must be before the event date")
 
     coordinator_id = functions.get_user_id_from_token(token)
 
