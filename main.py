@@ -11,6 +11,7 @@ app = FastAPI(
 
 functions.create_admin()
 
+#Shafff
 class RegisterModel(BaseModel):
     username: str = Field(min_length=1)
     email: EmailStr
