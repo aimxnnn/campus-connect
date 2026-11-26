@@ -104,3 +104,207 @@ def create_admin():
 
     session.close()
 
+# Shafff
+# A1 - REGISTER USER
+
+def register_user(username, email, password):
+
+    session = Session(engine)
+
+    existing_user = session.query(User).filter(User.email == email).first()
+
+    if existing_user:
+        session.close()
+        return None
+
+    hashed_password = password_hasher.hash(password)
+
+    new_user = User(
+        username=username,
+        email=email,
+        hashed_password=hashed_password,
+        role="student"
+    )
+
+    session.add(new_user)
+    session.commit()
+
+    session.close()
+
+    return True
+
+# A2 - LOGIN USER
+
+def login_user(email, password):
+
+    session = Session(engine)
+
+    user = session.query(User).filter(User.email == email).first()
+
+    if user is None:
+        session.close()
+        return None
+
+    try:
+        password_hasher.verify(user.hashed_password, password)
+
+    except VerifyMismatchError:
+        session.close()
+        return None
+
+    access_token = create_token(user.email, "access")
+    refresh_token = create_token(user.email, "refresh")
+    role = user.role
+
+    session.close()
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "role": role
+    }
+
+
+# A3 - GENERATE NEW ACCESS TOKEN
+
+def refresh_access_token(refresh_token):
+
+    email = verify_token(refresh_token, "refresh")
+
+    if email is None:
+        return None
+
+    new_access_token = create_token(email, "access")
+
+    return new_access_token
+
+
+# E1 - CREATE COORDINATOR ACCOUNT
+
+def create_coordinator(token, username, email, password):
+
+    session = Session(engine)
+
+    user = get_user(session, token)
+
+    if user is None:
+        session.close()
+        return fail("Invalid or missing access token", 401)
+
+    if user.role != "admin":
+        session.close()
+        return fail("Admin access required", 403)
+
+    existing_user = session.query(User).filter(User.email == email).first()
+
+    if existing_user:
+        session.close()
+        return fail("Email already exists", 409)
+
+    new_user = User(
+        username=username,
+        email=email,
+        hashed_password=password_hasher.hash(password),
+        role="coordinator"
+    )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    response = {
+        "id": new_user.id,
+        "username": new_user.username,
+        "email": new_user.email,
+        "role": new_user.role
+    }
+
+    session.close()
+
+    return ok(response, 201)
+
+# E2 - CREATE CLUB
+
+def create_club(token, name, description, category, coordinator_id):
+
+    session = Session(engine)
+
+    user = get_user(session, token)
+
+    if user is None:
+        session.close()
+        return fail("Invalid or missing access token", 401)
+
+    if user.role != "admin":
+        session.close()
+        return fail("Admin access required", 403)
+
+    coordinator = session.query(User).filter(
+        User.id == coordinator_id,
+        User.role == "coordinator"
+    ).first()
+
+    if coordinator is None:
+        session.close()
+        return fail("Coordinator not found", 404)
+
+    existing_club = session.query(Club).filter(Club.name == name).first()
+
+    if existing_club:
+        session.close()
+        return fail("Club name already exists", 409)
+
+    new_club = Club(
+        name=name,
+        description=description,
+        category=category,
+        coordinator_id=coordinator_id
+    )
+
+    session.add(new_club)
+    session.commit()
+    session.refresh(new_club)
+
+    response = {
+        "id": new_club.id,
+        "name": new_club.name,
+        "description": new_club.description,
+        "category": new_club.category,
+        "coordinator_id": new_club.coordinator_id
+    }
+
+    session.close()
+
+    return ok(response, 201)
+
+
+# E3 - GET ALL CLUBS
+
+def get_all_clubs():
+
+    session = Session(engine)
+
+    clubs = session.query(Club).all()
+
+    response = []
+
+    for club in clubs:
+
+        coordinator = session.query(User).filter(
+            User.id == club.coordinator_id
+        ).first()
+
+        temp_club = {
+            "id": club.id,
+            "name": club.name,
+            "description": club.description,
+            "category": club.category,
+            "coordinator_id": club.coordinator_id,
+            "coordinator_name": coordinator.username
+        }
+
+        response.append(temp_club)
+
+    session.close()
+
+    return response
