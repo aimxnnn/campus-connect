@@ -380,6 +380,12 @@ def update_club(club_id, coordinator_id, name, description, category):
 def apply_club(club_id, student_id):
     session = Session(engine)
 
+    user = session.query(User).filter(User.id == student_id).first()
+
+    if user.role != "student":
+        session.close()
+        return "forbidden"
+
     club = session.query(Club).filter(Club.id == club_id).first()
 
     if club is None:
@@ -482,7 +488,7 @@ def get_club_members(club_id, coordinator_id):
     return members
 
 #E9
-def create_event(club_id, coordinator_id, title, description, venue, date, max_capacity):
+def create_event(club_id, coordinator_id, title, description, venue, date, deadline, max_capacity):
     session = Session(engine)
 
     club = session.query(Club).filter(
@@ -502,8 +508,9 @@ def create_event(club_id, coordinator_id, title, description, venue, date, max_c
         title=title,
         description=description,
         venue=venue,
-        date=date,
-        max_capacity=max_capacity
+        event_date=date,
+        deadline=deadline,
+        capacity=max_capacity
     )
 
     session.add(event)
@@ -515,8 +522,9 @@ def create_event(club_id, coordinator_id, title, description, venue, date, max_c
         "title": event.title,
         "description": event.description,
         "venue": event.venue,
-        "date": event.date,
-        "max_capacity": event.max_capacity
+        "event_date": event.event_date,
+        "deadline": event.deadline,
+        "capacity": event.capacity
     }
 
     session.close()

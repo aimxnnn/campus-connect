@@ -119,7 +119,15 @@ def create_club(data: ClubModel, token: str = Header(None)):
 # E3 - GET ALL CLUBS
 
 @app.get("/clubs")
-def get_all_clubs():
+def get_all_clubs(token: str = Header(None)):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    user_id = functions.get_user_id_from_token(token)
+
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     clubs = functions.get_all_clubs()
 
@@ -136,6 +144,10 @@ def get_club_details(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=401, detail="Token required")
 
     club = functions.get_club(club_id)
+    user_id = functions.get_user_id_from_token(token)
+
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     if club is None:
         raise HTTPException(status_code=404, detail="Club not found")
@@ -185,6 +197,9 @@ def apply_to_club(club_id: int, token: str = Header(None)):
     if membership is False:
         raise HTTPException(status_code=400, detail="Already applied to this club")
 
+    if membership == "forbidden":
+        raise HTTPException(status_code=403, detail="Must be a student to apply for a club")
+
     return membership
 
 
@@ -224,6 +239,9 @@ def get_club_members(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=401, detail="Token required")
 
     coordinator_id = functions.get_user_id_from_token(token)
+    
+    if coordinator_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     members = functions.get_club_members(club_id, coordinator_id)
 
@@ -234,6 +252,7 @@ def get_club_members(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return members
+
 # E9
 @app.post("/clubs/{club_id}/events")
 def create_campus_event(
@@ -242,6 +261,7 @@ def create_campus_event(
     description: str,
     venue: str,
     date: datetime,
+    deadline: datetime,
     max_capacity: int,
     token: str = Header(None)
 ):
@@ -264,6 +284,7 @@ def create_campus_event(
         description,
         venue,
         date,
+        deadline,
         max_capacity
     )
 
@@ -284,7 +305,15 @@ class AttendanceModel(BaseModel):
 # E10 - GET ALL EVENTS
 
 @app.get("/events")
-def get_all_events():
+def get_all_events(token: str = Header(None)):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    user_id = functions.get_user_id_from_token(token)
+
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     events = functions.get_all_events()
 
