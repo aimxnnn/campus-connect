@@ -69,10 +69,10 @@ def update_membership_request(club_id: int, request_id: int, status: str, token:
 
     if token is None:
         raise HTTPException(status_code=401, detail="Token required")
+coordinator_id = functions.get_user_id_from_token(token)
 
-    coordinator_id = get_user_id_from_token(token)
-
-    membership = functions.update_membership(club_id, request_id, coordinator_id, status)
+if coordinator_id is None:
+    raise HTTPException(status_code=401, detail="Invalid token")
 
     if membership is None:
         raise HTTPException(status_code=404, detail="Club or membership request not found")
@@ -92,7 +92,7 @@ def get_club_members(club_id: int, token: str = Header(None)):
     if token is None:
         raise HTTPException(status_code=401, detail="Token required")
 
-    coordinator_id = get_user_id_from_token(token)
+    coordinator_id = functions.get_user_id_from_token(token)
 
     members = functions.get_club_members(club_id, coordinator_id)
 
@@ -103,8 +103,7 @@ def get_club_members(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return members
-
-#E9
+# E9
 @app.post("/clubs/{club_id}/events")
 def create_campus_event(
     club_id: int,
@@ -122,7 +121,10 @@ def create_campus_event(
     if max_capacity <= 0:
         raise HTTPException(status_code=422, detail="Invalid event capacity")
 
-    coordinator_id = get_user_id_from_token(token)
+    coordinator_id = functions.get_user_id_from_token(token)
+
+    if coordinator_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     event = functions.create_event(
         club_id,
