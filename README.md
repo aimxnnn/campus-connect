@@ -57,11 +57,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Step 6: Set the SECRET_KEY environment variable**
 
-```powershell
-$env:SECRET_KEY = "any-key"
-```
 
 **Step 7: Start the FastAPI server**
 
@@ -75,7 +71,6 @@ Open the following URL in your browser:
 
 http://127.0.0.1:8001/docs
 
-**Note:** The `SECRET_KEY` is not hardcoded in the application. It must be provided through an environment variable before starting the server. During EC2 deployment, it is securely provided using GitHub Secrets.
 
 ## 4. DOCKER IMPLEMENTATION
 
