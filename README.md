@@ -10,11 +10,11 @@ Campus Connect is a backend application designed to manage university clubs and 
 
 ### Team Members and Contributions
 
-| Name | Roll Number | Endpoints Developed | Other Contributions |
+| Name | Roll Number | Endpoints Developed | 
 |---|---|---|---|
-| Madiha | AU25UG078 | E4, E5, E6, E7, E8, E9 | README Documentation |
-| Aiman | AU25UG075 | E10, E11, E12, E13, E14, E15 | — |
-| Shafreen | AU25UG079 | A1, A2, A3, E1, E2, E3 | — |
+| Madiha | AU25UG078 | E4, E5, E6, E7, E8, E9 |
+| Aiman | AU25UG075 | E10, E11, E12, E13, E14, E15 | 
+| Shafreen | AU25UG079 | A1, A2, A3, E1, E2, E3 | 
 
 ## 2. LIVE APPLICATION
 
