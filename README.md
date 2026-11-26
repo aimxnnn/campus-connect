@@ -19,7 +19,7 @@ Campus Connect is a backend application designed to manage university clubs and 
 ## 2. LIVE APPLICATION
 
 **EC2 Deployment Link:**  
-[Add your EC2 public URL here]
+[(http://54.160.162.43:8001/docs#/)]
 
 ## 3. HOW TO RUN THE APPLICATION LOCALLY
 
@@ -57,15 +57,13 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-
-
-**Step 7: Start the FastAPI server**
+**Step 6: Start the FastAPI server**
 
 ```powershell
 uvicorn main:app --reload --port 8001
 ```
 
-**Step 8: Access the API documentation**
+**Step 7: Access the API documentation**
 
 Open the following URL in your browser:
 
@@ -74,7 +72,7 @@ http://127.0.0.1:8001/docs
 
 ## 4. DOCKER IMPLEMENTATION
 
-Docker is used to containerize the backend application, making it easier to run and deploy consistently across different environments.
+Docker is used to containerise the backend application, making it easier to run and deploy consistently across different environments.
 
 ### Step 1: Build the Docker Image
 
@@ -123,8 +121,6 @@ This ensures that database data is preserved even when the existing Docker conta
 ### Deployment Summary
 
 **GitHub → GitHub Actions → Docker Build → Docker Hub → AWS EC2 → Running Container**
-
-**Note:** The `SECRET_KEY` is configured through GitHub Secrets and passed securely during deployment rather than being stored directly in the source code.
 
 ---
 
