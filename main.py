@@ -103,3 +103,41 @@ def get_club_members(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return members
+
+#E9
+@app.post("/clubs/{club_id}/events")
+def create_campus_event(
+    club_id: int,
+    title: str,
+    description: str,
+    venue: str,
+    date: datetime,
+    max_capacity: int,
+    token: str = Header(None)
+):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    if max_capacity <= 0:
+        raise HTTPException(status_code=422, detail="Invalid event capacity")
+
+    coordinator_id = get_user_id_from_token(token)
+
+    event = functions.create_event(
+        club_id,
+        coordinator_id,
+        title,
+        description,
+        venue,
+        date,
+        max_capacity
+    )
+
+    if event is None:
+        raise HTTPException(status_code=404, detail="Club not found")
+
+    if event is False:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return event
