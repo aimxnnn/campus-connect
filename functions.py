@@ -116,206 +116,6 @@ def create_admin():
 
     session.close()
 
-#E4
-def get_club(club_id):
-    session = Session(engine)
-
-    club = session.query(Club).filter(
-        Club.id == club_id
-    ).first()
-
-    if club:
-        response = {
-            "id": club.id,
-            "name": club.name,
-            "description": club.description,
-            "category": club.category,
-            "coordinator_id": club.coordinator_id
-        }
-
-        session.close()
-        return response
-
-    session.close()
-    return None
-
-#E5
-def update_club(club_id, coordinator_id, name, description, category):
-    session = Session(engine)
-
-    club = session.query(Club).filter(Club.id == club_id).first()
-
-    if club is None:
-        session.close()
-        return None
-
-    if club.coordinator_id != coordinator_id:
-        session.close()
-        return False
-
-    club.name = name
-    club.description = description
-    club.category = category
-
-    session.commit()
-
-    response = {
-        "id": club.id,
-        "name": club.name,
-        "description": club.description,
-        "category": club.category,
-        "coordinator_id": club.coordinator_id
-    }
-
-    session.close()
-    return response
-
-#E6
-def apply_club(club_id, student_id):
-    session = Session(engine)
-
-    club = session.query(Club).filter(Club.id == club_id).first()
-
-    if club is None:
-        session.close()
-        return None
-
-    existing_request = session.query(Membership).filter(
-        Membership.club_id == club_id,
-        Membership.student_id == student_id
-    ).first()
-
-    if existing_request:
-        session.close()
-        return False
-
-    membership = Membership(
-        club_id=club_id,
-        student_id=student_id,
-        status="pending"
-    )
-
-    session.add(membership)
-    session.commit()
-
-    response = {
-        "id": membership.id,
-        "club_id": membership.club_id,
-        "student_id": membership.student_id,
-        "status": membership.status
-    }
-
-    session.close()
-    return response
-
-#E7
-def update_membership(club_id, request_id, coordinator_id, status):
-    session = Session(engine)
-
-    club = session.query(Club).filter(
-        Club.id == club_id
-    ).first()
-
-    if club is None:
-        session.close()
-        return None
-
-    if club.coordinator_id != coordinator_id:
-        session.close()
-        return False
-
-    membership = session.query(Membership).filter(
-        Membership.id == request_id,
-        Membership.club_id == club_id
-    ).first()
-
-    if membership is None:
-        session.close()
-        return None
-
-    if status not in ["approved", "rejected"]:
-        session.close()
-        return "invalid"
-
-    membership.status = status
-
-    session.commit()
-
-    response = {
-        "id": membership.id,
-        "club_id": membership.club_id,
-        "student_id": membership.student_id,
-        "status": membership.status
-    }
-
-    session.close()
-    return response
-
-#E8
-def get_club_members(club_id, coordinator_id):
-    session = Session(engine)
-
-    club = session.query(Club).filter(
-        Club.id == club_id
-    ).first()
-
-    if club is None:
-        session.close()
-        return None
-
-    if club.coordinator_id != coordinator_id:
-        session.close()
-        return False
-
-    members = session.query(Membership).filter(
-        Membership.club_id == club_id,
-        Membership.status == "approved"
-    ).all()
-
-    session.close()
-    return members
-
-#E9
-def create_event(club_id, coordinator_id, title, description, venue, date, max_capacity):
-    session = Session(engine)
-
-    club = session.query(Club).filter(
-        Club.id == club_id
-    ).first()
-
-    if club is None:
-        session.close()
-        return None
-
-    if club.coordinator_id != coordinator_id:
-        session.close()
-        return False
-
-    event = Event(
-        club_id=club_id,
-        title=title,
-        description=description,
-        venue=venue,
-        date=date,
-        max_capacity=max_capacity
-    )
-
-    session.add(event)
-    session.commit()
-
-    response = {
-        "id": event.id,
-        "club_id": event.club_id,
-        "title": event.title,
-        "description": event.description,
-        "venue": event.venue,
-        "date": event.date,
-        "max_capacity": event.max_capacity
-    }
-
-    session.close()
-    return response
-
 # Shafff
 # A1 - REGISTER USER
 
@@ -520,3 +320,205 @@ def get_all_clubs():
     session.close()
 
     return response
+
+#Madiha 
+#E4
+def get_club(club_id):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club:
+        response = {
+            "id": club.id,
+            "name": club.name,
+            "description": club.description,
+            "category": club.category,
+            "coordinator_id": club.coordinator_id
+        }
+
+        session.close()
+        return response
+
+    session.close()
+    return None
+
+#E5
+def update_club(club_id, coordinator_id, name, description, category):
+    session = Session(engine)
+
+    club = session.query(Club).filter(Club.id == club_id).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    club.name = name
+    club.description = description
+    club.category = category
+
+    session.commit()
+
+    response = {
+        "id": club.id,
+        "name": club.name,
+        "description": club.description,
+        "category": club.category,
+        "coordinator_id": club.coordinator_id
+    }
+
+    session.close()
+    return response
+
+#E6
+def apply_club(club_id, student_id):
+    session = Session(engine)
+
+    club = session.query(Club).filter(Club.id == club_id).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    existing_request = session.query(Membership).filter(
+        Membership.club_id == club_id,
+        Membership.student_id == student_id
+    ).first()
+
+    if existing_request:
+        session.close()
+        return False
+
+    membership = Membership(
+        club_id=club_id,
+        student_id=student_id,
+        status="pending"
+    )
+
+    session.add(membership)
+    session.commit()
+
+    response = {
+        "id": membership.id,
+        "club_id": membership.club_id,
+        "student_id": membership.student_id,
+        "status": membership.status
+    }
+
+    session.close()
+    return response
+
+#E7
+def update_membership(club_id, request_id, coordinator_id, status):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    membership = session.query(Membership).filter(
+        Membership.id == request_id,
+        Membership.club_id == club_id
+    ).first()
+
+    if membership is None:
+        session.close()
+        return None
+
+    if status not in ["approved", "rejected"]:
+        session.close()
+        return "invalid"
+
+    membership.status = status
+
+    session.commit()
+
+    response = {
+        "id": membership.id,
+        "club_id": membership.club_id,
+        "student_id": membership.student_id,
+        "status": membership.status
+    }
+
+    session.close()
+    return response
+
+#E8
+def get_club_members(club_id, coordinator_id):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    members = session.query(Membership).filter(
+        Membership.club_id == club_id,
+        Membership.status == "approved"
+    ).all()
+
+    session.close()
+    return members
+
+#E9
+def create_event(club_id, coordinator_id, title, description, venue, date, max_capacity):
+    session = Session(engine)
+
+    club = session.query(Club).filter(
+        Club.id == club_id
+    ).first()
+
+    if club is None:
+        session.close()
+        return None
+
+    if club.coordinator_id != coordinator_id:
+        session.close()
+        return False
+
+    event = Event(
+        club_id=club_id,
+        title=title,
+        description=description,
+        venue=venue,
+        date=date,
+        max_capacity=max_capacity
+    )
+
+    session.add(event)
+    session.commit()
+
+    response = {
+        "id": event.id,
+        "club_id": event.club_id,
+        "title": event.title,
+        "description": event.description,
+        "venue": event.venue,
+        "date": event.date,
+        "max_capacity": event.max_capacity
+    }
+
+    session.close()
+    return response
+
