@@ -44,14 +44,18 @@ def update_club_details(club_id: int, name: str, description: str, category: str
 
     return club
 
-#E6
+
+# E6
 @app.post("/clubs/{club_id}/apply")
 def apply_to_club(club_id: int, token: str = Header(None)):
 
     if token is None:
         raise HTTPException(status_code=401, detail="Token required")
 
-    student_id = get_user_id_from_token(token)
+    student_id = functions.get_user_id_from_token(token)
+
+    if student_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     membership = functions.apply_club(club_id, student_id)
 
@@ -63,16 +67,23 @@ def apply_to_club(club_id: int, token: str = Header(None)):
 
     return membership
 
-#E7
+
+
+# E7
 @app.patch("/clubs/{club_id}/requests/{request_id}")
 def update_membership_request(club_id: int, request_id: int, status: str, token: str = Header(None)):
 
     if token is None:
         raise HTTPException(status_code=401, detail="Token required")
-coordinator_id = functions.get_user_id_from_token(token)
 
-if coordinator_id is None:
-    raise HTTPException(status_code=401, detail="Invalid token")
+    coordinator_id = functions.get_user_id_from_token(token)
+
+    if coordinator_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    membership = functions.update_membership(
+        club_id, request_id, coordinator_id, status
+    )
 
     if membership is None:
         raise HTTPException(status_code=404, detail="Club or membership request not found")
