@@ -10,3 +10,13 @@ app = FastAPI(
     )
 
 functions.create_admin()
+
+#E4
+@app.get("/clubs/{club_id}")
+def get_club_details(club_id: int, token: str = Depends(get_current_user)):
+    club = functions.get_club(club_id)
+
+    if club is None:
+        raise HTTPException(status_code=404, detail="Club not found")
+    return club
+
