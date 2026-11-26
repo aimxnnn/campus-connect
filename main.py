@@ -62,3 +62,25 @@ def apply_to_club(club_id: int, token: str = Header(None)):
         raise HTTPException(status_code=400, detail="Already applied to this club")
 
     return membership
+
+#E7
+@app.patch("/clubs/{club_id}/requests/{request_id}")
+def update_membership_request(club_id: int, request_id: int, status: str, token: str = Header(None)):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    coordinator_id = get_user_id_from_token(token)
+
+    membership = functions.update_membership(club_id, request_id, coordinator_id, status)
+
+    if membership is None:
+        raise HTTPException(status_code=404, detail="Club or membership request not found")
+
+    if membership is False:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if membership == "invalid":
+        raise HTTPException(status_code=400, detail="Invalid membership status")
+
+    return membership
