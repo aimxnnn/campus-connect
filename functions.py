@@ -68,6 +68,18 @@ def get_user(session, token):
 
     return session.query(User).filter(User.email == email).first()
 
+def get_user_id_from_token(token):
+    session = Session(engine)
+    user = get_user(session, token)
+
+    if user is None:
+        session.close()
+        return None
+
+    user_id = user.id
+
+    session.close()
+    return user_id
 
 def club_error(session, user, club_id):
 
