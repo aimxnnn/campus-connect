@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field, EmailStr
 import functions
@@ -25,14 +24,17 @@ def get_club_details(club_id: int, token: str = Header(None)):
 
     return club
 
-#E5
+# E5
 @app.put("/clubs/{club_id}")
 def update_club_details(club_id: int, name: str, description: str, category: str, token: str = Header(None)):
 
     if token is None:
         raise HTTPException(status_code=401, detail="Token required")
 
-    coordinator_id = get_user_id_from_token(token)
+    coordinator_id = functions.get_user_id_from_token(token)
+
+    if coordinator_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
     club = functions.update_club(club_id, coordinator_id, name, description, category)
 
