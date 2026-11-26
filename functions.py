@@ -6,7 +6,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 
 
-SECRET_KEY = "campus-connect-secret-key-for-jwt-2026"
+SECRET_KEY = "campus-connect-secret-key-for-jwt-2027"
 ALGORITHM = "HS256"
 
 password_hasher = PasswordHasher()
