@@ -23,6 +23,11 @@ class LoginModel(BaseModel):
 class RefreshToken(BaseModel):
     refresh_token: str
 
+class ClubModel(BaseModel):
+    name: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    category: str = Field(min_length=1)
+    coordinator_id: int
 
 # A1 - REGISTER USER
 
@@ -72,4 +77,53 @@ def refresh_token(data: RefreshToken):
     return {
         "access_token": new_access_token,
         "token_type": "bearer"
+    }
+
+
+# E1 - CREATE COORDINATOR ACCOUNT
+
+@app.post("/admin/coordinators", status_code=201)
+def create_coordinator(data: RegisterModel, token: str = Header(None)):
+
+    result = functions.create_coordinator(
+        token,
+        data.username,
+        data.email,
+        data.password
+    )
+
+    if result["error"] is not None:
+        raise HTTPException(status_code=result["code"], detail=result["error"])
+
+    return result["data"]
+
+
+# E2 - CREATE CLUB
+
+@app.post("/clubs", status_code=201)
+def create_club(data: ClubModel, token: str = Header(None)):
+
+    result = functions.create_club(
+        token,
+        data.name,
+        data.description,
+        data.category,
+        data.coordinator_id
+    )
+
+    if result["error"] is not None:
+        raise HTTPException(status_code=result["code"], detail=result["error"])
+
+    return result["data"]
+
+
+# E3 - GET ALL CLUBS
+
+@app.get("/clubs")
+def get_all_clubs():
+
+    clubs = functions.get_all_clubs()
+
+    return {
+        "clubs": clubs
     }
