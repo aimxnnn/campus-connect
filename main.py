@@ -84,3 +84,22 @@ def update_membership_request(club_id: int, request_id: int, status: str, token:
         raise HTTPException(status_code=400, detail="Invalid membership status")
 
     return membership
+
+#E8
+@app.get("/clubs/{club_id}/members")
+def get_club_members(club_id: int, token: str = Header(None)):
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    coordinator_id = get_user_id_from_token(token)
+
+    members = functions.get_club_members(club_id, coordinator_id)
+
+    if members is None:
+        raise HTTPException(status_code=404, detail="Club not found")
+
+    if members is False:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return members
