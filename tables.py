@@ -26,7 +26,7 @@ class Club(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
-    description = Column(String, nullable=False)
+    description = Column(String, nullable=True, default="Description not given")
     category = Column(String, nullable=False)
     coordinator_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
