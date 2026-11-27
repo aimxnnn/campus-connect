@@ -353,7 +353,7 @@ def cancel_registration(event_id: int, token: str = Header(None)):
 
 # E13 - MARK EVENT ATTENDANCE
 
-@app.put("/events/{event_id}/attendance")
+@app.patch("/events/{event_id}/attendance")
 def mark_attendance(event_id: int, data: AttendanceModel, token: str = Header(None)):
 
     result = functions.mark_attendance(
